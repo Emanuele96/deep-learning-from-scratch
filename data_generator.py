@@ -53,7 +53,7 @@ class Data_Generator():
         
         return x_train, y_train, x_validate, y_validate, x_test, y_test
 
-    def generate_random_horizontal_bar_image(self, flat):
+    def generate_random_vertical_bar_image(self, flat):
         a= np.zeros((self.n_size , self.n_size))
         step = random.randint(2, self.n_size/2)
         for i in range(1, self.n_size):
@@ -63,7 +63,7 @@ class Data_Generator():
             return a.reshape(-1)
         return a
 
-    def generate_random_vertical_bar_image(self, flat):
+    def generate_random_horizontal_bar_image(self, flat):
         a= np.zeros((self.n_size , self.n_size))
         step = random.randint(2, self.n_size/2)
         for i in range(1, self.n_size):

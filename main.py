@@ -9,6 +9,6 @@ if __name__ == "__main__":
     #print(x_train)
     #print(y_train)
     noise = data_generator.generate_noise(False)
-    pic = np.round(data_generator.generate_random_circle_image(False))
+    pic = np.round(data_generator.generate_random_vertical_bar_image(False))
     data_generator.show_picture(pic)
     data_generator.show_picture(data_generator.apply_noise(pic, noise))
