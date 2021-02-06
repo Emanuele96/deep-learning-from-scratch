@@ -74,18 +74,29 @@ class Data_Generator():
         return a
 
     def generate_random_circle_image(self, flat):
-        a= np.zeros((self.n_size , self.n_size))      
-        r = random.randint(1, self.n_size/2)
+        # Begin with a blank canvas
+        a= np.zeros((self.n_size , self.n_size))  
+        # find the center of the image
+        center = math.floor(self.n_size/2)    
+        # decide for a random radius. Max size is half ot the image width/height
+        r = random.randint(int(math.sqrt(self.n_size)), center)
+        # Set the origo to 0,0 if with probability centered_percent, else find a random origo in relation to radius and picture size
         if random.random() <= self.centered_percent:
-            o = (0,0)
+            o = (center, center)
         else:
             o = (random.randint(r, self.n_size - r), random.randint(r, self.n_size - r))
-        theta = np.linspace(0, 2 * np.pi, self.n_size*2)
-        x = r * np.cos(theta)
-        y = r * np.sin(theta)
-        coordinate = np.column_stack((x, y)) + r
+        # Get an array of degrees for the circle calculation, size 3 times of picture size for scale(enough point to look nice, in relation to size)
+        theta = np.linspace(0, 2 * np.pi, self.n_size*3)
+        # Calculate the x and y coordinate, stack it to get a 2 dimentional array of coordinates [[x1,y1], [x2,y2], ... , [xn*3, yn*3]]
+        x = r * np.cos(theta) + o[0]
+        y = r * np.sin(theta) + o[1]
+        coordinate = np.column_stack((x, y))
+        # For each point of the circle, toggle the pixel on the canvas to "draw" the circle
         for point in coordinate:
-            a[int(point[0]), int(point[1])] = 1
+            x_point = min(math.floor(point[0]), self.n_size - 1)
+            y_point = min(math.floor(point[1]), self.n_size - 1)
+            a[x_point, y_point] = 1
+        # Flatten the 2D array to 1D if required
         if flat:
             return a.reshape(-1)
         return a
@@ -108,4 +119,5 @@ class Data_Generator():
 
     def show_picture(self, data):
         plt.imshow(data, interpolation="nearest")
+        plt.gca().invert_yaxis()
         plt.show()
