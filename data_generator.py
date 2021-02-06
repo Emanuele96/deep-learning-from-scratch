@@ -86,7 +86,7 @@ class Data_Generator():
         else:
             o = (random.randint(r, self.n_size - r), random.randint(r, self.n_size - r))
         # Get an array of degrees for the circle calculation, size 3 times of picture size for scale(enough point to look nice, in relation to size)
-        theta = np.linspace(0, 2 * np.pi, self.n_size*3)
+        theta = np.linspace(0, 2 * np.pi, self.n_size**2)
         # Calculate the x and y coordinate, stack it to get a 2 dimentional array of coordinates [[x1,y1], [x2,y2], ... , [xn*3, yn*3]]
         x = r * np.cos(theta) + o[0]
         y = r * np.sin(theta) + o[1]
