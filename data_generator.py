@@ -21,6 +21,8 @@ class Data_Generator():
         self.valid_size = math.ceil(train_val_test_percent[1] * self.total_images)
         self.test_size = math.ceil(train_val_test_percent[2] * self.total_images)
         self.noise_factor = noise_factor
+        # Get an array of degrees for the circle calculation, size 3 times of picture size for scale(enough point to look nice, in relation to size)
+        self.theta = np.linspace(0, 2 * np.pi, self.n_size**2)
 
     def generate_dataset(self):
         images = np.zeros(shape=(self.total_images,self.n_size* self.n_size))
@@ -47,9 +49,11 @@ class Data_Generator():
         #Generate a numpy array of evenly spaced indexes, then shuffle
         indexes = np.arange(self.total_images)
         np.random.shuffle(indexes)
+        stop_index_validate = self.train_size + self.valid_size
+        start_index_test = stop_index_validate + self.valid_size
         x_train, y_train = images[indexes[:self.train_size]] , labels[indexes[:self.train_size]]
-        x_validate , y_validate = images[indexes[self.train_size:self.valid_size]] , labels[indexes[self.train_size:self.valid_size]]
-        x_test , y_test = images[indexes[self.valid_size:]] , labels[indexes[self.valid_size:]]
+        x_validate , y_validate = images[indexes[self.train_size: stop_index_validate]] , labels[indexes[self.train_size: stop_index_validate]]
+        x_test , y_test = images[indexes[stop_index_validate:]] , labels[indexes[stop_index_validate:]]
         
         return x_train, y_train, x_validate, y_validate, x_test, y_test
 
@@ -85,11 +89,9 @@ class Data_Generator():
             o = (center, center)
         else:
             o = (random.randint(r, self.n_size - r), random.randint(r, self.n_size - r))
-        # Get an array of degrees for the circle calculation, size 3 times of picture size for scale(enough point to look nice, in relation to size)
-        theta = np.linspace(0, 2 * np.pi, self.n_size**2)
         # Calculate the x and y coordinate, stack it to get a 2 dimentional array of coordinates [[x1,y1], [x2,y2], ... , [xn*3, yn*3]]
-        x = r * np.cos(theta) + o[0]
-        y = r * np.sin(theta) + o[1]
+        x = r * np.cos(self.theta) + o[0]
+        y = r * np.sin(self.theta) + o[1]
         coordinate = np.column_stack((x, y))
         # For each point of the circle, toggle the pixel on the canvas to "draw" the circle
         for point in coordinate:
@@ -102,7 +104,27 @@ class Data_Generator():
         return a
 
     def generate_random_rectangle_image(self, flat):
-        a =  np.random.rand(self.n_size , self.n_size) 
+        a =  np.zeros((self.n_size , self.n_size))
+        x = random.randint(0, self.n_size - 1)
+        y = random.randint(0, self.n_size - 1)
+        if x < self.n_size/2:
+            width = random.randint(x + 1, self.n_size - x - 1)
+        else:
+            width = - random.randint(2, x - 1)
+        if y < self.n_size/2:
+            height = random.randint( y + 1, self.n_size - y - 1)
+        else:
+            height = - random.randint(2, y - 1)
+        
+        x_step = int(width / abs(width))
+        y_step =  int(height/abs(height))
+        for i in range(0, width + x_step, x_step):
+            a[y, x + i] = 1
+            a[y + height, x + i] = 1
+        for i in range(0, height + y_step, y_step):
+            a[y + i, x] = 1
+            a[y + i,x + width] = 1
+
         if flat:
             return a.reshape(-1)
         return a
