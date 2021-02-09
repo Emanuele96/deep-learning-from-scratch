@@ -26,5 +26,6 @@ if __name__ == "__main__":
    # data_generator.show_picture(pic)
    # data_generator.show_picture(data_generator.apply_noise(pic, noise))
     m1 = model.Model(cfg)
-    m1.add_layer(3,5, "tanh", (-0.1, 0.1))
-    print(m1.layers[0].activation_derivative(5))
+    m1.add_layer(3,5, (-0.1, 0.1))
+    m1.add_activation(5, "tanh") 
+    

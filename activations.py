@@ -45,3 +45,31 @@ def get_activation_derivative(name):
         return sigmoid_derivative
     elif name == "tanh":
         return tanh_derivative
+
+def softmax(N):
+    exp_fun = lambda x: np.exp(x)
+    vectorized_exp_fun = np.vectorize(exp_fun)
+    #shift every element x of N to avoid NaN values when x >> 0
+    N = N - np.max(N)
+    S = vectorized_exp_fun(N)
+    S = N / sum(N)
+    return S
+
+def compute_j_soft(S):
+    # Create a mask for Jsoft when i != j and i == j
+    j_soft = np.ones(S.shape)
+    id_matrix = np.identity(len(S))
+    j_soft = j_soft - id_matrix
+
+    #  when i == j, elements x == Si - Si**2
+    diagonal_fun = lambda x : x - x**2    
+    id_matrix = id_matrix * S
+    id_matrix = diagonal_fun(id_matrix)
+
+    # when i != j, elements x == -Si*Sj
+    for index, x in np.ndenumerate(j_soft):
+        j_soft[index] = j_soft[index] * (-1) * S[index[0]] * S[index[1]]
+        
+    # add two matricies togheter to get Jsoft
+    j_soft = j_soft + id_matrix
+    return j_soft
