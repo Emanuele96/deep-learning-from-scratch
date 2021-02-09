@@ -1,30 +1,30 @@
 import numpy as np
 
-def linear(x):
+def linear(self, x):
     return x
 
-def relu(x):
+def relu(self, x):
     return max(0, x)
 
-def tanh(x):
+def tanh(self,x):
     return np.tanh(x)
 
-def sigmoid(x):
+def sigmoid(self, x):
     return 1/(1+ np.exp(-x))
 
-def linear_derivative():
+def linear_derivative(self, x):
     return 1
 
-def relu_derivative(x):
+def relu_derivative(self, x):
     if x < 0:
         return 0
     return 1
 
-def tanh_derivative(x):
+def tanh_derivative(self, x):
     return 1 - np.tanh(x)**2
 
-def sigmoid_derivative(x):
-    return sigmoid(x)*(1-sigmoid(x))
+def sigmoid_derivative(self, x):
+    return sigmoid(self, x)*(1-sigmoid(self, x))
 
 def get_activation_function(name):
     if name == "linear":
@@ -35,6 +35,8 @@ def get_activation_function(name):
         return sigmoid
     elif name == "tanh":
         return tanh
+    elif name == "softmax":
+        return softmax
 
 def get_activation_derivative(name):
     if name == "linear":
@@ -45,8 +47,10 @@ def get_activation_derivative(name):
         return sigmoid_derivative
     elif name == "tanh":
         return tanh_derivative
+    elif name == "softmax":
+        return compute_j_soft
 
-def softmax(N):
+def softmax(self, N):
     exp_fun = lambda x: np.exp(x)
     vectorized_exp_fun = np.vectorize(exp_fun)
     #shift every element x of N to avoid NaN values when x >> 0
@@ -55,7 +59,8 @@ def softmax(N):
     S = N / sum(N)
     return S
 
-def compute_j_soft(S):
+def compute_j_soft(self, S):
+    S = np.squeeze(S)
     # Create a mask for Jsoft when i != j and i == j
     j_soft = np.ones(S.shape)
     id_matrix = np.identity(len(S))
@@ -69,7 +74,7 @@ def compute_j_soft(S):
     # when i != j, elements x == -Si*Sj
     for index, x in np.ndenumerate(j_soft):
         j_soft[index] = j_soft[index] * (-1) * S[index[0]] * S[index[1]]
-        
+
     # add two matricies togheter to get Jsoft
     j_soft = j_soft + id_matrix
     return j_soft

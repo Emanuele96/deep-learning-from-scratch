@@ -25,32 +25,33 @@ class Data_Generator():
         self.theta = np.linspace(0, 2 * np.pi, self.n_size**2)
 
     def generate_dataset(self):
-        images = np.zeros(shape=(self.total_images,self.n_size* self.n_size))
-        labels = np.zeros(shape=(self.total_images, self.number_of_categories))
+        #shape of images and labels to match (tot, 1, n*n) and (tot, 1, cat), so that array of row vectors, to be fed in the network
+        images = np.zeros(shape=(self.total_images, 1, self.n_size* self.n_size))
+        labels = np.zeros(shape=(self.total_images, 1,  self.number_of_categories))
         counter = 0
         for category in self.categories:
             for picture in range(self.pictures_per_category):
                 if (category == self.categories[0]).all():
                     images[counter] += self.generate_random_horizontal_bar_image(True)
-                    labels[counter] += category
+                    labels[counter] = abs(category - 0.1)
                     counter += 1
                 elif (category == self.categories[1]).all():
                     images[counter] += self.generate_random_vertical_bar_image(True)
-                    labels[counter] += category
+                    labels[counter] = abs(category - 0.1)
                     counter += 1
                 elif (category == self.categories[2]).all():
                     images[counter] += self.generate_random_circle_image(True)
-                    labels[counter] += category
+                    labels[counter] = abs(category - 0.1)
                     counter += 1
                 elif (category == self.categories[3]).all:
                     images[counter] += self.generate_random_rectangle_image(True)
-                    labels[counter] += category
+                    labels[counter] = abs(category - 0.1)
                     counter += 1
         #Generate a numpy array of evenly spaced indexes, then shuffle
         indexes = np.arange(self.total_images)
         np.random.shuffle(indexes)
         stop_index_validate = self.train_size + self.valid_size
-        start_index_test = stop_index_validate + self.valid_size
+        #start_index_test = stop_index_validate + self.valid_size
         x_train, y_train = images[indexes[:self.train_size]] , labels[indexes[:self.train_size]]
         x_validate , y_validate = images[indexes[self.train_size: stop_index_validate]] , labels[indexes[self.train_size: stop_index_validate]]
         x_test , y_test = images[indexes[stop_index_validate:]] , labels[indexes[stop_index_validate:]]
