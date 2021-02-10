@@ -4,7 +4,9 @@ def linear(self, x):
     return x
 
 def relu(self, x):
-    return max(0, x)
+    fun = lambda elem : max(0, elem)
+    vect_fun = np.vectorize(fun)
+    return vect_fun(x)
 
 def tanh(self,x):
     return np.tanh(x)
@@ -16,9 +18,9 @@ def linear_derivative(self, x):
     return 1
 
 def relu_derivative(self, x):
-    if x < 0:
-        return 0
-    return 1
+    fun = lambda elem : 0 if elem < 0 else 1
+    vect_fun = np.vectorize(fun)
+    return vect_fun(x)
 
 def tanh_derivative(self, x):
     return 1 - np.tanh(x)**2
@@ -50,14 +52,9 @@ def get_activation_derivative(name):
     elif name == "softmax":
         return compute_j_soft
 
-def softmax(self, N):
-    exp_fun = lambda x: np.exp(x)
-    vectorized_exp_fun = np.vectorize(exp_fun)
-    #shift every element x of N to avoid NaN values when x >> 0
-    N = N - np.max(N)
-    S = vectorized_exp_fun(N)
-    S = N / sum(N)
-    return S
+def softmax(self, x):
+    e_x = np.exp(x - np.max(x)) 
+    return e_x / e_x.sum(axis=1)
 
 def compute_j_soft(self, S):
     S = np.squeeze(S)
