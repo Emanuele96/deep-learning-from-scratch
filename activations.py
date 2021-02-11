@@ -4,9 +4,7 @@ def linear(self, x):
     return x
 
 def relu(self, x):
-    fun = lambda elem : max(0, elem)
-    vect_fun = np.vectorize(fun)
-    return vect_fun(x)
+    return np.maximum(x, 0)
 
 def tanh(self,x):
     return np.tanh(x)
@@ -18,9 +16,7 @@ def linear_derivative(self, x):
     return 1
 
 def relu_derivative(self, x):
-    fun = lambda elem : 0 if elem < 0 else 1
-    vect_fun = np.vectorize(fun)
-    return vect_fun(x)
+    return np.where(x > 0, 1.0, 0.0)
 
 def tanh_derivative(self, x):
     return 1 - np.tanh(x)**2
@@ -58,7 +54,16 @@ def softmax(self, x):
 
 def compute_j_soft(self, S):
     S = np.squeeze(S)
-    # Create a mask for Jsoft when i != j and i == j
+    n = len(S)
+    j_soft = np.zeros((n,n))
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                j_soft[i][j] = S[i] - S[i]**2
+            else:
+                j_soft[i][j] = -S[i]*S[j]
+
+    '''# Create a mask for Jsoft when i != j and i == j
     j_soft = np.ones(S.shape)
     id_matrix = np.identity(len(S))
     j_soft = j_soft - id_matrix
@@ -74,4 +79,7 @@ def compute_j_soft(self, S):
 
     # add two matricies togheter to get Jsoft
     j_soft = j_soft + id_matrix
+    '''
     return j_soft
+
+
