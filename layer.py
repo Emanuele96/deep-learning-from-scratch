@@ -2,25 +2,26 @@ import numpy as np
 import activations
 
 class FC_layer():
-    def __init__(self, input_size, output_size, weight_init_range):
+    def __init__(self, input_size, output_size, weight_init_range, activation):
         self.type = "FC"
         self.shape = (input_size, output_size)
+        self.activation = activations.get_activation_function(activation)
+        self.d_activation = activations.get_activation_derivative(activation)
         self.input = None
         self.output = None
         self.weights = np.random.uniform(low=weight_init_range[0], high= weight_init_range[1], size=(input_size, output_size))
-        self.bias = np.random.rand(output_size)
+        self.bias = np.zeros((1,output_size))
         self.weights_grads = np.zeros(self.weights.shape)
         self.bias_grads = np.zeros(self.bias.shape)
         
 
     def forward(self, input_activations):
-        # Dot product of input with W plus bias. Cache and return
-
+        # Dot product of input with W plus bias. Cache, activate and return
         output = np.dot(input_activations, self.weights) + self.bias
-        self.input_activations = input_activations
-        self.input = input_activations
+        output = self.activation(self, output)
         self.output = output
-        return self.output
+        self.input = input_activations
+        return output
     
     def backward(self, jacobian_L_Z):
         # Get the output_loss of this layer from the activation layer.
@@ -45,31 +46,23 @@ class FC_layer():
 
         # Now save the bias loss and weight loss (representing the calculated gradiants).
         # This will be updated at the end of the batch, or SGD
-        self.weights_grads = self.weights_grads + jacobian_L_W
+        self.weights_grads =self.weights_grads + jacobian_L_W
         self.bias_grads = self.bias_grads + jacobian_L_B
-
         #Finally return the calculated input loss --> this will be the output loss of the next layer
         return jacobian_L_Y
 
     def create_jacobian_Z_sum(self):
-        Z = np.squeeze(self.output)
-        n = len(Z)
-        jacobian_Z_sum = np.zeros((n, n))
-        for index, x in np.ndenumerate(jacobian_Z_sum):
-            if index[0] == index[1]:
-                z =  Z[index[0]]
-                jacobian_Z_sum[index] = z * (1 - z)
-        return jacobian_Z_sum
+        return np.identity(self.output[0].size) * self.d_activation(self, self.output)
 
     def update_gradients(self, learning_rate, gradient_avg_factor = 1):
         #Update gradients, usefull when doing batch learning
         # Get the avg of the gradients (for SGD divide by 1, else divide by batchsize)
-        self.weights_grads = self.weights_grads / gradient_avg_factor
-        self.bias_grads = self.bias_grads / gradient_avg_factor
+        #self.weights_grads = self.weights_grads / gradient_avg_factor
+        #self.bias_grads = self.bias_grads / gradient_avg_factor
 
         # Update weights and biases
-        self.weights = self.weights - learning_rate * self.weights_grads
-        self.bias = self.bias - learning_rate * self.bias_grads
+        self.weights -= learning_rate * self.weights_grads
+        self.bias -= learning_rate * self.bias_grads
         self.weights_grads = np.zeros(self.weights.shape)
         self.bias_grads = np.zeros(self.bias.shape)
 
@@ -77,26 +70,31 @@ class FC_layer():
     def __str__(self):
         return "FC Layer type size = " + str(self.weights.shape)
 
-class activation_layer():
-    def __init__(self, size, activation_fun):
+class softmax():
+    def __init__(self, size):
         self.size = size
-        self.type = activation_fun
-        self.output = np.zeros(size)
-        self.activation_function = activations.get_activation_function(activation_fun)
-        self.activation_derivative = activations.get_activation_derivative(activation_fun)
+        self.type = "softmax"
+        self.activation_function = activations.softmax
 
     def forward(self, input_data):
-        return self.activation_function(self, input_data)
-    
-    def backward(self, jacobian_L_Y):
-        '''  #takes in the Jacobian matrix Jls (der. loss respect of output) return the Jacobian matrix Jsoft.
-        # Do the dot product of the Jsoft and Jls to get Jlz, to be fed to the rest of the network
-        if self.type == "softmax":
-            return np.dot(output_loss, activations.compute_j_soft(self, network_output))
-        ''' 
-        # If regular activation, we do the element wise multiplication between two row vectors:
-        #   the input data and the [F'(inputdata)] to get the layer input
-        return self.activation_derivative(self, jacobian_L_Y)
+        return  self.activation_function(self, input_data)
+
+    def backward(self, jacobian_L_S, softmaxed_network_output):
+        jacobian_soft = self.compute_j_soft(softmaxed_network_output)    
+        jacobian_L_Z = np.dot(jacobian_L_S, jacobian_soft)
+        return jacobian_L_Z
+
+    def compute_j_soft(self, S):
+        S = np.squeeze(S)
+        n = len(S)
+        j_soft = np.zeros((n,n))
+        for i in range(n):
+            for j in range(n):
+                if i == j:
+                    j_soft[i][j] = S[i] - S[i]**2
+                else:
+                    j_soft[i][j] = -S[i]*S[j]
+        return j_soft
 
     def __str__(self):
-        return "Activation Layer type " + self.type.upper() + " size = " + str(self.output.shape[0])
+        return "Softmax Layer of size = " + str(self.size)

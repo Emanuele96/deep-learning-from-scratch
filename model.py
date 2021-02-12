@@ -15,12 +15,11 @@ class Model():
         self.loss_derivative = loss.get_loss_derivative(cfg["loss_fun"])
 
     def add_layer(self,  input_size, output_size, weight_init_range, activation_function):
-        self.layers.append(layer.FC_layer(input_size, output_size, weight_init_range))
-        self.layers.append(layer.activation_layer(output_size, activation_function))
+        self.layers.append(layer.FC_layer(input_size, output_size, weight_init_range, activation_function))
         return output_size
 
-    def add_activation(self, activation_function):
-        self.layers.append(layer.activation_layer(self.layers[-1].size, activation_function))
+    def add_softmax(self):
+        self.layers.append(layer.softmax(self.layers[-1].shape[1]))
 
     def train(self, x_train, y_train, epochs, batch_size):
         bar = IncrementalBar('Training epoch', max=epochs)
@@ -38,7 +37,6 @@ class Model():
                     sample_nr = k + j * batch_size
                     if sample_nr == samples:
                         break
-                    
 
                     # FORWARD PASS : Fetch the input data and propagate through the network
                     # This will be represent the input layer
@@ -59,22 +57,20 @@ class Model():
                     #   Calculate JLS and JSZ (Jsoft).
                     #   Then calculate the jacobian of input prior the Softmax layer, JLZ
                     #   Backpropagate JLZ to all the other layers.
-                    if self.layers[-1].type == "softmax":
-                        jacobian_L_S = self.loss_derivative(self,y_train[sample_nr],  network_output)
-                        Jacobian_soft = activations.compute_j_soft(self, network_output)
-                        jacobian_L_Z = np.dot(jacobian_L_S, Jacobian_soft)
-                        layers = self.layers[:-1]
-                    else:
-                        jacobian_L_Z = self.loss_derivative(self, y_train[sample_nr], network_output)
-                        layers = self.layers
+                    
+                    jacobian_L_Z = self.loss_derivative(self,y_train[sample_nr],  network_output)
+                    
 
-                    for layer in reversed(layers):
-                        jacobian_L_Z = layer.backward(jacobian_L_Z)
+                    for layer in reversed(self.layers):
+                        if layer.type == "softmax":
+                            jacobian_L_Z = layer.backward(jacobian_L_Z, network_output)
+                        else:
+                            jacobian_L_Z = layer.backward(jacobian_L_Z)
 
                 # At the end of each batch, update gradients
                 for layer in self.layers:
                     if layer.type == "FC":
-                        layer.update_gradients(self.learning_rate)
+                        layer.update_gradients(self.learning_rate, batch_size)
                 losses.append(batch_loss/batch_size)
             # end of an epoch
             bar.next()
@@ -88,5 +84,6 @@ class Model():
         s = "***  Model Architecture *** \n Input Layer of size = " + str(self.layers[0].shape[0])
         for layer in self.layers:
             s = s + "\n" + str(layer)
+        s = s + "\n Learning rate is " + str(self.learning_rate)
         s = s + "\n" + "**************************"
         return s
