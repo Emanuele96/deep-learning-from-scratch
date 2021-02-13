@@ -4,6 +4,7 @@ import activations
 class FC_layer():
     def __init__(self, input_size, output_size, weight_init_range, activation):
         self.type = "FC"
+        self.activation_name = activation
         self.shape = (input_size, output_size)
         self.activation = activations.get_activation_function(activation)
         self.d_activation = activations.get_activation_derivative(activation)
@@ -68,11 +69,12 @@ class FC_layer():
 
 
     def __str__(self):
-        return "FC Layer type size = " + str(self.weights.shape)
+        return "FC Layer type size = " + str(self.weights.shape) + " with activation = " + self.activation_name
 
 class softmax():
     def __init__(self, size):
         self.size = size
+        self.shape = (1, size)
         self.type = "softmax"
         self.activation_function = activations.softmax
 
@@ -98,3 +100,4 @@ class softmax():
 
     def __str__(self):
         return "Softmax Layer of size = " + str(self.size)
+

@@ -20,7 +20,7 @@ class Data_Generator():
         self.train_size = math.ceil( train_val_test_percent[0] * self.total_images)
         self.valid_size = math.ceil(train_val_test_percent[1] * self.total_images)
         self.test_size = math.ceil(train_val_test_percent[2] * self.total_images)
-        self.noise_factor = noise_factor
+        self.noise_factor = noise_factor/2
         # Get an array of degrees for the circle calculation, size 3 times of picture size for scale(enough point to look nice, in relation to size)
         self.theta = np.linspace(0, 2 * np.pi, self.n_size**2)
 
@@ -32,19 +32,19 @@ class Data_Generator():
         for category in self.categories:
             for picture in range(self.pictures_per_category):
                 if (category == self.categories[0]).all():
-                    images[counter] += self.generate_random_horizontal_bar_image(True)
+                    images[counter] += self.apply_noise(self.generate_random_horizontal_bar_image(True), self.generate_noise(True))
                     labels[counter] = abs(category - 0.1)
                     counter += 1
                 elif (category == self.categories[1]).all():
-                    images[counter] += self.generate_random_vertical_bar_image(True)
+                    images[counter] +=self.apply_noise(self.generate_random_vertical_bar_image(True), self.generate_noise(True))
                     labels[counter] = abs(category - 0.1)
                     counter += 1
                 elif (category == self.categories[2]).all():
-                    images[counter] += self.generate_random_circle_image(True)
+                    images[counter] += self.apply_noise(self.generate_random_circle_image(True), self.generate_noise(True))
                     labels[counter] = abs(category - 0.1)
                     counter += 1
                 elif (category == self.categories[3]).all:
-                    images[counter] += self.generate_random_rectangle_image(True)
+                    images[counter] += self.apply_noise(self.generate_random_rectangle_image(True), self.generate_noise(True))
                     labels[counter] = abs(category - 0.1)
                     counter += 1
         #Generate a numpy array of evenly spaced indexes, then shuffle
@@ -144,3 +144,4 @@ class Data_Generator():
         plt.imshow(data, interpolation="nearest")
         plt.gca().invert_yaxis()
         plt.show()
+    
