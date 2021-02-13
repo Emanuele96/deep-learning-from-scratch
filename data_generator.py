@@ -12,7 +12,7 @@ class Data_Generator():
         #                                                                                 [0 0 1 0]
         #                                                                                 [0 0 0 1]]
         # can use identity matrix of size number_of_categories 
-        self.categories = categories
+        self.categories = np.expand_dims(np.identity(categories, dtype=int),1)
         self.number_of_categories = number_of_categories
         self.pictures_per_category = pictures_per_category
         self.centered_percent = centered_percent

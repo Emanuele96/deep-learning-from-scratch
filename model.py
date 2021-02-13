@@ -103,6 +103,6 @@ class Model():
         s = "***  Model Architecture *** \n Input Layer of size = " + str(self.layers[0].shape[0])
         for layer in self.layers:
             s = s + "\n" + str(layer)
-        s = s + "\n Learning rate is " + str(self.learning_rate)
+        s = s + "\nLearning rate is " + str(self.learning_rate)
         s = s + "\n" + "**************************"
         return s

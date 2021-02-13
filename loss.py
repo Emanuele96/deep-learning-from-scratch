@@ -4,16 +4,6 @@ def mse(self, label, output):
     return np.mean(np.power(label - output , 2))
 
 def cross_entropy(self, label, output):
-    '''loss = np.zeros(output.shape)
-    for y in range (len(label[0])):
-        if label[0][y] == 0.9:
-            loss[0][y] = - np.log2(output[0][y])
-        else:
-             loss[0][y] = - np.log2(1-  output[0][y])
-    return np.sum(loss) 
-    '''
-    #print("output", output)
-    #print("loss",np.dot(np.log2(output), label.T) )
     return  np.sum(label * np.log2(output)) * (-1)
     
 def mse_derivative(self, label, output):
@@ -21,16 +11,8 @@ def mse_derivative(self, label, output):
     return (label - output)*(2/n)
 
 def cross_entropy_derivative(self, label, output):
-    '''loss = np.zeros(output.shape)
-    for y in range (len(label[0])):
-        if label[0][y] == 0.9:
-            loss[0][y] = -1/output[0][y]
-        else:
-             loss[0][y] = -1/(1-  output[0][y])
-    return loss 
-    '''
     return output - label
-    
+
 def get_loss_function(name):
     if name == "mse":
         return mse
