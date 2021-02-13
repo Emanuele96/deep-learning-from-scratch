@@ -11,8 +11,12 @@ class Model():
     def __init__(self, cfg):
         self.layers = list(())
         self.learning_rate = cfg["lr"]
+        self.loss_function_name = cfg["loss_fun"]
         self.loss_fun = loss.get_loss_function(cfg["loss_fun"])
         self.loss_derivative = loss.get_loss_derivative(cfg["loss_fun"])
+        self.penalty_factor = cfg["penalty_factor"]
+        self.penalty_function = loss.get_penalty_function(cfg["penalization"])
+        self.penalty_function_name = cfg["penalization"]
 
     def add_layer(self,  input_size, output_size, weight_init_range, activation_function):
         self.layers.append(layer.FC_layer(input_size, output_size, weight_init_range, activation_function))
@@ -28,10 +32,8 @@ class Model():
         losses = list(())
         validation_errors = list(())
         for i in range(epochs):
-            #print("epoch ", i)
             # For each epoch --> go through the whole train set, one batch on the time
             for j in range(batches):
-                #print("batch ", j)
                 # For each batch, go through "batch_size" samples 
                 batch_loss = 0
                 batch_samples = 0
@@ -39,7 +41,7 @@ class Model():
                     # For each sample, propagate to the network.
                     # Then backpropagate network output and calculate gradients.
                     sample_nr = k + j * batch_size
-                    #print("samplenr ", sample_nr)
+                    omega = 0
                     if sample_nr == samples:
                         break
                     batch_samples += 1
@@ -53,20 +55,23 @@ class Model():
                     # Calculate the loss
                     loss = self.loss_fun(self,y_train[sample_nr], network_output)
                     batch_loss = batch_loss + loss
-                    #print("loss ", loss)
-                    #print(loss)
-                    #print("network output", network_output)
-                    #print("label", y_train[sample_nr])
-                    #print("loss", loss)
-                    
                     # BACKWARD PASS : Get the loss and backpropagate throught the network
-                    # If the last layer is Softmax:
-                    #   Calculate JLS and JSZ (Jsoft).
-                    #   Then calculate the jacobian of input prior the Softmax layer, JLZ
-                    #   Backpropagate JLZ to all the other layers.
                     
+                    #Get the normalization penalty
+                    if self.penalty_function_name != "None":
+                        # Get all the weights of the network
+                        network_weights = list(())
+                        for layer in self.layers:
+                            if layer.type == "FC":
+                                network_weights.append(layer.weights)
+                        omega = self.penalty_function(self, network_weights)
+
                     jacobian_L_Z = self.loss_derivative(self,y_train[sample_nr],  network_output)
-                    
+
+                    if self.penalty_function_name != "None":
+                        # Add the penalty to the loss function
+                        jacobian_L_Z = jacobian_L_Z + self.penalty_factor*omega
+                    # backpropagate
                     for layer in reversed(self.layers):
                         if layer.type == "softmax":
                             jacobian_L_Z = layer.backward(jacobian_L_Z, network_output)
@@ -90,6 +95,9 @@ class Model():
         for layer in self.layers:
             prediction = layer.forward(prediction)
         return prediction
+    
+    def calculate_loss(self, label, prediction):
+        return self.loss_fun(self, label, prediction)
 
     def validate(self, x_validate, y_validate):
         error = 0 
@@ -98,11 +106,33 @@ class Model():
             error += self.loss_fun(self, y_validate[i], prediction)
         return error/len(x_validate)
 
+    def test(self,x_test, y_test, test_batch_size):
+        test_errors = list(())
+        samples = len(x_test)
+        batches = math.ceil(samples/test_batch_size)
+        for i in range(batches):
+            # For each batch, go through "batch_size" samples 
+            batch_loss = 0
+            batch_samples = 0
+            for j in range(test_batch_size):
+                # For each sample, propagate to the network and get the avereged loss
+                sample_nr = j + i * test_batch_size
+                if sample_nr == samples:
+                        break
+                batch_samples += 1
+                batch_loss += self.calculate_loss(y_test[sample_nr], self.predict(x_test[sample_nr]))
+            test_errors.append(batch_loss/batch_samples)
+        return test_errors
+
 
     def __str__(self):
-        s = "***  Model Architecture *** \n Input Layer of size = " + str(self.layers[0].shape[0])
+        s = "***  Model Architecture *** \nInput Layer of size = " + str(self.layers[0].shape[0])
         for layer in self.layers:
             s = s + "\n" + str(layer)
-        s = s + "\nLearning rate is " + str(self.learning_rate)
+        s = s + "\nLearning rate : " + str(self.learning_rate)
+        s = s + "\nLoss function : " + str(self.loss_function_name)
+        s = s + "\nWeight regularization : " + str(self.penalty_function_name)
+        if self.penalty_function_name != "None":
+            s = s + "\nWeight regularization factor: " + str(self.penalty_factor)
         s = s + "\n" + "**************************"
         return s

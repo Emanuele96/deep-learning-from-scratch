@@ -57,10 +57,16 @@ if __name__ == "__main__":
     #Train the model
     if cfg["train_on_start"]:
         losses, validation_errors = m1.train(x_train, y_train, x_validate, y_validate, cfg["epochs"], cfg["batch_size"])
-        mini_batches = np.linspace(0, len(losses), num=len(losses))
-        plt.plot(mini_batches, losses)
-        plt.plot(mini_batches, validation_errors)
+        time = np.linspace(0, len(losses), num=len(losses))
+        # test trained model on test data
+        test_losses = m1.test(x_test, y_test, cfg["batch_size"])
+        time_test = np.linspace(len(losses) + 1 , len(losses) + len(test_losses) + 1, num=len(test_losses))
+        plt.plot(time, losses)
+        plt.plot(time, validation_errors)
+        plt.plot(time_test, test_losses)
+        plt.legend(["train", "validate", "test"], loc ="upper right") 
         plt.show()
+
     
 
 

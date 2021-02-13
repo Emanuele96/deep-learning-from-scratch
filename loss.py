@@ -13,6 +13,18 @@ def mse_derivative(self, label, output):
 def cross_entropy_derivative(self, label, output):
     return output - label
 
+def L1(self, network_weights):
+    penalty = 0
+    for weights in network_weights:
+        penalty += np.sum(np.where(weights, abs(weights), abs(weights)))
+    return penalty
+
+def L2(self, network_weights):
+    penalty = 0
+    for weights in network_weights:
+        penalty += np.sum(np.where(weights, weights**2, weights**2))
+    return penalty/2
+
 def get_loss_function(name):
     if name == "mse":
         return mse
@@ -25,3 +37,10 @@ def get_loss_derivative(name):
     elif name == "cross_entropy":
         return cross_entropy_derivative
 
+def get_penalty_function(name):
+    if name == "L1":
+        return L1
+    elif name == "L2":
+        return L2
+    elif name == "None":
+        return None

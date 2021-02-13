@@ -1,23 +1,26 @@
 {
-    "n_size": 16,
+    "n_size": 20,
     "categories": 4,
     "pic_per_categories": 250,
     "train_val_test_percent": [
         0.7, 0.2, 0.1
     ],
     "center_image_prob": 0.5,
-    "noise_percent": 0.12,
+    "noise_percent": 0.1,
     "soft_start": false,
-    "show_pictures_on_start": false,
-    "animation_speed": 50,
+    "show_pictures_on_start": true,
+    "animation_speed": 100,
     "train_on_start": true,
     "hidden_layers_nodes": [
-        20, 10
+        50, 20, 10
     ],
     "hidden_layers_activations": [
-        "tanh", "tanh"
+        "tanh", "tanh", "tanh"
     ],
     "hidden_layers_weight_start": [
+        [
+            -0.1, 0.1
+        ],
         [
             -0.1, 0.1
         ],
@@ -33,6 +36,8 @@
     "use_softmax": true,
     "lr": 0.005,
     "loss_fun": "cross_entropy",
-    "batch_size": 128,
-    "epochs": 1000
+    "penalization": "L2",
+    "penalty_factor": 0.001,
+    "batch_size": 32,
+    "epochs": 300
 }

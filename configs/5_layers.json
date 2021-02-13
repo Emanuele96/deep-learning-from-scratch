@@ -39,6 +39,8 @@
     "use_softmax": true,
     "lr": 0.05,
     "loss_fun": "cross_entropy",
+    "penalization": "L2",
+    "penalty_factor": 0.1,
     "batch_size": 32,
     "epochs": 300
 }
