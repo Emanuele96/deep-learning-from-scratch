@@ -8,17 +8,23 @@
     "center_image_prob": 0.5,
     "noise_percent": 0.05,
     "soft_start": false,
-    "show_pictures_on_start": false,
+    "show_pictures_on_start": true,
     "animation_speed": 50,
     "train_on_start": true,
     "hidden_layers_nodes": [
-        20, 10
+        80, 50,30, 15, 8
     ],
     "hidden_layers_activations": [
-        "sigmoid", "sigmoid"
+        "relu", "relu", "relu", "relu", "relu"
     ],
     "hidden_layers_weight_start": [
         [
+            -0.1, 0.1
+        ],        [
+            -0.1, 0.1
+        ],        [
+            -0.1, 0.1
+        ],        [
             -0.1, 0.1
         ],
         [
@@ -26,7 +32,7 @@
         ]
     ],
     "output_layer_nodes": 4,
-    "output_layer_activation": "sigmoid",
+    "output_layer_activation": "relu",
     "output_layer_weight_start": [
         -0.1, 0.1
     ],

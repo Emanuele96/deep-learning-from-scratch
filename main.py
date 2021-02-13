@@ -32,9 +32,8 @@ parser.add_argument('--config', default="cfg.json", type=str, help="Select confi
 args = parser.parse_args()
 cfg = read_config_from_json(args.config)
 # Generate dataset
-data_generator = data_generator.Data_Generator(cfg["n_size"], cfg["categories"], cfg["categories"], cfg["pic_per_categories"], cfg["train_val_test_percent"], cfg["center_image_prob"], cfg["noise_percent"])
+data_generator = data_generator.Data_Generator(cfg["n_size"], cfg["categories"], cfg["categories"], cfg["pic_per_categories"], cfg["train_val_test_percent"], cfg["center_image_prob"], cfg["noise_percent"], cfg["soft_start"])
 x_train, y_train, x_validate, y_validate, x_test, y_test = data_generator.generate_dataset()
-
 # Run Program
 if __name__ == "__main__":
 

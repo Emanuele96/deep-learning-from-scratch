@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 
 class Data_Generator():
 
-    def __init__(self, n_size, categories, number_of_categories, pictures_per_category, train_val_test_percent, centered_percent, noise_factor):
+    def __init__(self, n_size, categories, number_of_categories, pictures_per_category, train_val_test_percent, centered_percent, noise_factor, soft_start):
         self.n_size = n_size
         #numpy array of shape = (number_of_categories, number_of_categories, 1)  example [[1 0 0 0]
         #                                                                                 [0 1 0 0]
@@ -21,6 +21,7 @@ class Data_Generator():
         self.valid_size = math.ceil(train_val_test_percent[1] * self.total_images)
         self.test_size = math.ceil(train_val_test_percent[2] * self.total_images)
         self.noise_factor = noise_factor/2
+        self.soft_start = soft_start
         # Get an array of degrees for the circle calculation, size 3 times of picture size for scale(enough point to look nice, in relation to size)
         self.theta = np.linspace(0, 2 * np.pi, self.n_size**2)
 
@@ -33,19 +34,19 @@ class Data_Generator():
             for picture in range(self.pictures_per_category):
                 if (category == self.categories[0]).all():
                     images[counter] += self.apply_noise(self.generate_random_horizontal_bar_image(True), self.generate_noise(True))
-                    labels[counter] = abs(category - 0.1)
+                    labels[counter] = self.assign_label(category)
                     counter += 1
                 elif (category == self.categories[1]).all():
                     images[counter] +=self.apply_noise(self.generate_random_vertical_bar_image(True), self.generate_noise(True))
-                    labels[counter] = abs(category - 0.1)
+                    labels[counter] = self.assign_label(category)
                     counter += 1
                 elif (category == self.categories[2]).all():
                     images[counter] += self.apply_noise(self.generate_random_circle_image(True), self.generate_noise(True))
-                    labels[counter] = abs(category - 0.1)
+                    labels[counter] = self.assign_label(category)
                     counter += 1
                 elif (category == self.categories[3]).all:
                     images[counter] += self.apply_noise(self.generate_random_rectangle_image(True), self.generate_noise(True))
-                    labels[counter] = abs(category - 0.1)
+                    labels[counter] = self.assign_label(category)
                     counter += 1
         #Generate a numpy array of evenly spaced indexes, then shuffle
         indexes = np.arange(self.total_images)
@@ -57,6 +58,12 @@ class Data_Generator():
         x_test , y_test = images[indexes[stop_index_validate:]] , labels[indexes[stop_index_validate:]]
         
         return x_train, y_train, x_validate, y_validate, x_test, y_test
+
+    def assign_label(self, category):
+        if self.soft_start:
+            return abs(category - 0.1)
+        else:
+            return category
 
     def generate_random_vertical_bar_image(self, flat):
         a= np.zeros((self.n_size , self.n_size))
