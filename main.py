@@ -7,58 +7,7 @@ from progress.bar import IncrementalBar
 import json
 import argparse
 
-
-'''cfg = {
-    #Data generator variables
-    "n_size" : 16,
-    "categories" : 4,
-    "pic_per_categories" :150,
-    "train_val_test_percent" : (0.7, 0.2, 0.1),
-    "center_image_prob" : 0.5,
-    "noise_percent" : 0.05,
-    "animation_speed" : 50,
-    "show_pictures_on_start": False,
-    #Model variables
-    "train_on_start": True,
-    "hidden_layers_nodes" : (20,10),
-    "hidden_layers_activations":("tanh", "tanh"),
-    "hidden_layers_weight_start":((-0.1, 0.1),(-0.1, 0.1)),
-    "output_layer_nodes" : 4,
-    "output_layer_activation": "tanh",
-    "output_layer_weight_start": (-0.1, 0.1),
-    "use_softmax" : True,
-    "lr": 5e-03,#9e-04,
-    "loss_fun" : "cross_entropy",
-    "batch_size" : 32,
-    "epochs" : 300
-}
-
-cfg33 = {
-    #Data generator variables
-    "n_size" : 16,
-    "categories" : 4,
-    "pic_per_categories" :150,
-    "train_val_test_percent" : (0.7, 0.2, 0.1),
-    "center_image_prob" : 0.5,
-    "noise_percent" : 0.05,
-    "animation_speed" : 50,
-    "show_pictures_on_start": False,
-    #Model variables
-    "train_on_start": True,
-    "hidden_layers_nodes" : (100,100,10),
-    "hidden_layers_activations":("relu", "relu", "relu"),
-    "hidden_layers_weight_start":((-0.1, 0.1),(-0.1, 0.1),(-0.1, 0.1)),
-    "output_layer_nodes" : 4,
-    "output_layer_activation": "relu",
-    "output_layer_weight_start": (-0.1, 0.1),
-    "use_softmax" : True,
-    "lr": 5e-03,#9e-04,
-    "loss_fun" : "cross_entropy",
-    "batch_size" : 32,
-    "epochs" : 300
-}
-
-'''
+# Tools 
 def read_config_from_json(filename):
     with open('configs/' + filename, 'r') as fp:
         cfg = json.load(fp)
