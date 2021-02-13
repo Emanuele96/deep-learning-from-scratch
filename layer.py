@@ -29,15 +29,19 @@ class FC_layer():
     
     def backward(self, jacobian_L_Z):
         # Get the jacobian linking the loss with respect of this layer output from the previous layer.
-        # Calculate the weights gradients, the bias gradient and the input_loss
-        #  that will be passed to the previous activation layer and so on, up to layer 1
+        # PURPOSE: Calculate the weights gradients, the bias gradient and the input_loss
+        #           that will be passed to the previous activation layer and so on, up to layer previous input
         Y = self.input
+        # Create the jacobian J_Z_sum with the layer cached outputs and the derivative of activation function
         jacobian_Z_sum = self.create_jacobian_Z_sum()
-        # Weights loss derivative --> Layer activation input transposed (to get column vector) dot product with output loss
-        simp_jacobian_Z_W = np.outer(Y, jacobian_Z_sum.diagonal())
 
+        # Find the Weights gradients jacobian_L_W
+        # Compute the simple jacobian linking the outputs and the weights
+        simp_jacobian_Z_W = np.outer(Y, jacobian_Z_sum.diagonal())
+        # Then compute the jacobian linking the loss to the weights
         jacobian_L_W = jacobian_L_Z * simp_jacobian_Z_W
-        # Calculate the input layer loss
+
+        # Calculate the input layer loss jacobian_L_Y
         # by doing dot product of output layer loss and the weigths matrix transposed (so to invert M N to N M, where M < N, we go the other way around)
         jacobian_Z_Y = np.dot(jacobian_Z_sum ,self.weights.T)
         jacobian_L_Y = np.dot( jacobian_L_Z, jacobian_Z_Y)
@@ -46,12 +50,11 @@ class FC_layer():
         # Bias loss is the as the output loss --> the bias influence on the loss == layer activation output influence on the loss
         jacobian_L_B = jacobian_L_Z
 
-      
-
         # Now save the bias loss and weight loss (representing the calculated gradiants).
         # This will be updated at the end of the batch, or SGD
         self.weights_grads =self.weights_grads + jacobian_L_W
         self.bias_grads = self.bias_grads + jacobian_L_B
+        
         #Finally return the calculated input loss --> this will be the output loss of the next layer
         return jacobian_L_Y
 

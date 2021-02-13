@@ -60,12 +60,12 @@ cfg33 = {
 
 '''
 def read_config_from_json(filename):
-    with open(filename, 'r') as fp:
+    with open('configs/' + filename, 'r') as fp:
         cfg = json.load(fp)
     return cfg
 
 def dump_config_to_json(filename):
-    with open(filename, 'w') as fp:
+    with open('configs/' + filename, 'w') as fp:
         json.dump(cfg, fp)
 
 def animate(i):
