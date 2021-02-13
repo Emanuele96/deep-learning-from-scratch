@@ -11,7 +11,8 @@ class FC_layer():
         self.input = None
         self.output = None
         self.weights = np.random.uniform(low=weight_init_range[0], high= weight_init_range[1], size=(input_size, output_size))
-        self.bias = np.zeros((1,output_size))
+        #self.bias = np.zeros((1,output_size))
+        self.bias = np.random.rand(1,output_size)
         self.weights_grads = np.zeros(self.weights.shape)
         self.bias_grads = np.zeros(self.bias.shape)
         
@@ -19,13 +20,15 @@ class FC_layer():
     def forward(self, input_activations):
         # Dot product of input with W plus bias. Cache, activate and return
         output = np.dot(input_activations, self.weights) + self.bias
-        output = self.activation(self, output)
+        # Cache the weighted outputs and inputs
         self.output = output
         self.input = input_activations
+        # Pass the output throug the activation function
+        output = self.activation(self, output)
         return output
     
     def backward(self, jacobian_L_Z):
-        # Get the output_loss of this layer from the activation layer.
+        # Get the jacobian linking the loss with respect of this layer output from the previous layer.
         # Calculate the weights gradients, the bias gradient and the input_loss
         #  that will be passed to the previous activation layer and so on, up to layer 1
         Y = self.input
@@ -58,6 +61,7 @@ class FC_layer():
     def update_gradients(self, learning_rate, gradient_avg_factor = 1):
         #Update gradients, usefull when doing batch learning
         # Get the avg of the gradients (for SGD divide by 1, else divide by batchsize)
+        ## UPDATE: removed the division by batchsize: Implemented this factor in the learning rate
         #self.weights_grads = self.weights_grads / gradient_avg_factor
         #self.bias_grads = self.bias_grads / gradient_avg_factor
 
@@ -82,7 +86,9 @@ class softmax():
         return  self.activation_function(self, input_data)
 
     def backward(self, jacobian_L_S, softmaxed_network_output):
+        # Create jacobian of derivate of softmax
         jacobian_soft = self.compute_j_soft(softmaxed_network_output)    
+        # Compute jacobian linking Loss to output 
         jacobian_L_Z = np.dot(jacobian_L_S, jacobian_soft)
         return jacobian_L_Z
 
