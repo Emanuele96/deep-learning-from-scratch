@@ -1,5 +1,5 @@
 {
-    "n_size": 32,
+    "n_size": 16,
     "categories": 4,
     "pic_per_categories": 150,
     "train_val_test_percent": [

@@ -126,7 +126,7 @@ class Model():
 
 
     def __str__(self):
-        s = "***  Model Architecture *** \nInput Layer of size = " + str(self.layers[0].shape[0])
+        s = "\n***  Model Architecture *** \nInput Layer of size = " + str(self.layers[0].shape[0])
         for layer in self.layers:
             s = s + "\n" + str(layer)
         s = s + "\nLearning rate : " + str(self.learning_rate)

@@ -1,5 +1,5 @@
 {
-    "n_size": 20,
+    "n_size": 16,
     "categories": 4,
     "pic_per_categories": 250,
     "train_val_test_percent": [
@@ -12,15 +12,12 @@
     "animation_speed": 100,
     "train_on_start": true,
     "hidden_layers_nodes": [
-        50, 20, 10
+        20, 10
     ],
     "hidden_layers_activations": [
-        "tanh", "tanh", "tanh"
+        "tanh", "tanh"
     ],
     "hidden_layers_weight_start": [
-        [
-            -0.1, 0.1
-        ],
         [
             -0.1, 0.1
         ],

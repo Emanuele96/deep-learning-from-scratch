@@ -1,7 +1,7 @@
 {
     "n_size": 16,
     "categories": 4,
-    "pic_per_categories": 150,
+    "pic_per_categories": 200,
     "train_val_test_percent": [
         0.7, 0.2, 0.1
     ],
