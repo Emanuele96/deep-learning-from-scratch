@@ -58,11 +58,15 @@ if __name__ == "__main__":
     if cfg["train_on_start"]:
         losses, validation_errors = m1.train(x_train, y_train, x_validate, y_validate, cfg["epochs"], cfg["batch_size"])
         time = np.linspace(0, len(losses), num=len(losses))
+        time_validate = np.linspace(0, len(losses), num=cfg["epochs"])
         # test trained model on test data
-        test_losses = m1.test(x_test, y_test, cfg["batch_size"])
+        test_loss = m1.test(x_test, y_test)
+        test_losses = np.linspace(test_loss, test_loss, num = 300)
         time_test = np.linspace(len(losses) + 1 , len(losses) + len(test_losses) + 1, num=len(test_losses))
         plt.plot(time, losses)
-        plt.plot(time, validation_errors)
+        plt.plot(time_validate, validation_errors)
+        print("train", time)
+        print("validate", time_validate)
         plt.plot(time_test, test_losses)
         plt.legend(["train", "validate", "test"], loc ="upper right") 
         plt.show()

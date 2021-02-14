@@ -9,7 +9,7 @@
     "noise_percent": 0.05,
     "soft_start": false,
     "show_pictures_on_start": false,
-    "animation_speed": 50,
+    "animation_speed": 200,
     "train_on_start": true,
     "hidden_layers_nodes": [
     ],

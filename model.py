@@ -56,7 +56,8 @@ class Model():
                     loss = self.loss_fun(self,y_train[sample_nr], network_output)
                     batch_loss = batch_loss + loss
                     # BACKWARD PASS : Get the loss and backpropagate throught the network
-                    
+                    jacobian_L_Z = self.loss_derivative(self,y_train[sample_nr],  network_output)
+
                     #Get the normalization penalty
                     if self.penalty_function_name != "None":
                         # Get all the weights of the network
@@ -65,12 +66,9 @@ class Model():
                             if layer.type == "FC":
                                 network_weights.append(layer.weights)
                         omega = self.penalty_function(self, network_weights)
-
-                    jacobian_L_Z = self.loss_derivative(self,y_train[sample_nr],  network_output)
-
-                    if self.penalty_function_name != "None":
                         # Add the penalty to the loss function
                         jacobian_L_Z = jacobian_L_Z + self.penalty_factor*omega
+                        
                     # backpropagate
                     for layer in reversed(self.layers):
                         if layer.type == "softmax":
@@ -83,9 +81,9 @@ class Model():
                     if layer.type == "FC":
                         layer.update_gradients(self.learning_rate)
                 # Append the loss of the batch and validate the batch
-                losses.append(batch_loss/batch_samples)
-                validation_errors.append(self.validate(x_validate, y_validate))
+                losses.append(batch_loss/batch_samples) 
             # end of an epoch
+            validation_errors.append(self.validate(x_validate, y_validate))
             bar.next()
         bar.finish()
         return losses, validation_errors
@@ -106,23 +104,12 @@ class Model():
             error += self.loss_fun(self, y_validate[i], prediction)
         return error/len(x_validate)
 
-    def test(self,x_test, y_test, test_batch_size):
-        test_errors = list(())
+    def test(self,x_test, y_test):
         samples = len(x_test)
-        batches = math.ceil(samples/test_batch_size)
-        for i in range(batches):
-            # For each batch, go through "batch_size" samples 
-            batch_loss = 0
-            batch_samples = 0
-            for j in range(test_batch_size):
-                # For each sample, propagate to the network and get the avereged loss
-                sample_nr = j + i * test_batch_size
-                if sample_nr == samples:
-                        break
-                batch_samples += 1
-                batch_loss += self.calculate_loss(y_test[sample_nr], self.predict(x_test[sample_nr]))
-            test_errors.append(batch_loss/batch_samples)
-        return test_errors
+        loss = 0
+        for i in range(samples): 
+            loss += self.calculate_loss(y_test[i], self.predict(x_test[i]))
+        return loss/samples
 
 
     def __str__(self):

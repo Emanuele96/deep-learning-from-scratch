@@ -7,6 +7,7 @@ class Data_Generator():
 
     def __init__(self, n_size, categories, number_of_categories, pictures_per_category, train_val_test_percent, centered_percent, noise_factor, soft_start):
         random.seed(42)
+        np.random.seed(42)
         self.n_size = n_size
         #numpy array of shape = (number_of_categories, number_of_categories, 1)  example [[1 0 0 0]
         #                                                                                 [0 1 0 0]
