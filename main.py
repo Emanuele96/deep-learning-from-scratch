@@ -65,8 +65,6 @@ if __name__ == "__main__":
         time_test = np.linspace(len(losses) + 1 , len(losses) + len(test_losses) + 1, num=len(test_losses))
         plt.plot(time, losses)
         plt.plot(time_validate, validation_errors)
-        print("train", time)
-        print("validate", time_validate)
         plt.plot(time_test, test_losses)
         plt.legend(["train", "validate", "test"], loc ="upper right") 
         plt.show()

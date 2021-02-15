@@ -6,10 +6,10 @@
         0.7, 0.2, 0.1
     ],
     "center_image_prob": 0.5,
-    "noise_percent": 0.1,
+    "noise_percent": 0.05,
     "soft_start": false,
     "show_pictures_on_start": true,
-    "animation_speed": 200,
+    "animation_speed": 1000,
     "train_on_start": true,
     "hidden_layers_nodes": [
         20, 10
